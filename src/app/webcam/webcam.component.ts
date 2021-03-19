@@ -11,13 +11,13 @@ export class WebcamComponent implements OnInit {
   
   WIDTH: number = 440;
   HEIGHT: number = 280;
-  imageSrc:HTMLImageElement;
+  imageSrc: any;
 
   @ViewChild('video',{ static: true}) video: ElementRef;
 
   @ViewChild('canvas',{ static: true}) canvasRef: ElementRef;
 
-  @ViewChild('image',{static: true}) imageX: HTMLImageElement;
+  @ViewChild('imageX',{ static: true}) imageX: ElementRef;
 
   constructor(private elRef: ElementRef) { }
 
@@ -27,7 +27,11 @@ export class WebcamComponent implements OnInit {
   canvas: any;
   canvasEl: any;
   displaySize: any;
+  canvas2: any;
+  canvasEl2: any;
+  displaySize2: any;
   videoInput: any;
+  imageInput: any;
   faceMatcher: any;
   uploadedDetection: any  = null;
 
@@ -35,6 +39,7 @@ export class WebcamComponent implements OnInit {
     await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri('../../assets/models'),
     await faceapi.nets.faceLandmark68Net.loadFromUri('../../assets/models'),
     await faceapi.nets.faceRecognitionNet.loadFromUri('../../assets/models'),
+    await faceapi.nets.ssdMobilenetv1.loadFromUri('../../assets/models'),
     await faceapi.nets.faceExpressionNet.loadFromUri('../../assets/models'),]).then(() => this.startVideo());
   }
 
@@ -94,11 +99,17 @@ export class WebcamComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e: any) => this.imageSrc = e.target.result;
       reader.readAsDataURL(file);
-      this.uploadedDetection = await faceapi.detectAllFaces(this.imageX).withFaceLandmarks().withFaceDescriptors();
-      console.log(this.uploadedDetection);
+      this.imageInput = this.imageX.nativeElement;
+      this.imageInput.setAttribute('id', 'canvass2');
+      this.imageInput.setAttribute(
+        'style',`height: 260px; width: 480px;`
+     );
 
-     // this.faceMatcher = new faceapi.FaceMatcher(this.uploadedDetection);
-     // console.log(this.faceMatcher);
+      this.uploadedDetection = await faceapi.detectAllFaces(this.imageInput, new  faceapi.TinyFaceDetectorOptions());
+     // console.log(this.uploadedDetection);
+
+     //this.faceMatcher = new faceapi.FaceMatcher(this.uploadedDetection);
+     //console.log(this.faceMatcher);
      
     }
 
