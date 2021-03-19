@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as faceapi from 'face-api.js';
+//import { Base64EncodedImage } from '../base64-encoded-image';
 
 @Component({
   selector: 'app-webcam',
@@ -10,10 +11,13 @@ export class WebcamComponent implements OnInit {
   
   WIDTH: number = 440;
   HEIGHT: number = 280;
+  imageSrc:HTMLImageElement;
 
   @ViewChild('video',{ static: true}) video: ElementRef;
 
   @ViewChild('canvas',{ static: true}) canvasRef: ElementRef;
+
+  @ViewChild('image',{static: true}) imageX: HTMLImageElement;
 
   constructor(private elRef: ElementRef) { }
 
@@ -24,6 +28,8 @@ export class WebcamComponent implements OnInit {
   canvasEl: any;
   displaySize: any;
   videoInput: any;
+  faceMatcher: any;
+  uploadedDetection: any  = null;
 
   async ngOnInit() {
     await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri('../../assets/models'),
@@ -66,13 +72,34 @@ export class WebcamComponent implements OnInit {
             this.detection,
             this.displaySize
           );
-         this.canvas.getContext('2d').clearRect(0, 0,      this.canvas.width,this.canvas.height);
+         this.canvas.getContext('2d').clearRect(0, 0,  this.canvas.width,this.canvas.height);
          faceapi.draw.drawDetections(this.canvas, this.resizedDetections);
          faceapi.draw.drawFaceLandmarks(this.canvas, this.resizedDetections);
-         faceapi.draw.drawFaceExpressions(this.canvas, this.resizedDetections);
+         //faceapi.draw.drawFaceExpressions(this.canvas, this.resizedDetections);
+        //  if (this.uploadedDetection !== null) {
+        //  // const bestMatch = this.faceMatcher.findBestMatch(this.resizedDetections.descriptor);
+        //   console.log(this.uploadedDetection);
+        // }
+        // this.faceMatcher = new faceapi.FaceMatcher(this.resizedDetections);
+        // console.log(this.faceMatcher);
+
       }, 100);
 
       });
+
+    }
+
+    async selectFile(event: any) {
+      const file = event.target.files.item(0);
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.imageSrc = e.target.result;
+      reader.readAsDataURL(file);
+      this.uploadedDetection = await faceapi.detectAllFaces(this.imageX).withFaceLandmarks().withFaceDescriptors();
+      console.log(this.uploadedDetection);
+
+     // this.faceMatcher = new faceapi.FaceMatcher(this.uploadedDetection);
+     // console.log(this.faceMatcher);
+     
     }
 
 }

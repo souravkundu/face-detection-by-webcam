@@ -2,10 +2,16 @@
 
 <div class="video-container">
     <video #video
-           [width]=440
-           [height]=280
+           [width]="WIDTH"
+           [height]="HEIGHT"
            autoplay
            muted>
     </video>
     <div #canvas></div>
  </div>
+
+<h2>Select File</h2>
+<input type="file" (change)="selectFile($event)">
+<br>
+<br>
+<img #image [src]="imageSrc" style="height: 260px; width: 480px; position: relative;">
